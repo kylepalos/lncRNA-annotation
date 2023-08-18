@@ -20,7 +20,7 @@ To start, sequencing experiments will be separated into single-end or paired-end
 fastp single-end:
 
 ```
-Fastp -i input.fastq.gz -o trimmed_directory/input_trimmed.fastq.gz \
+fastp -i input.fastq.gz -o trimmed_directory/input_trimmed.fastq.gz \
 -h html_reports/input.html \
 -j json_reports/input.json
 ```
@@ -28,7 +28,7 @@ Fastp -i input.fastq.gz -o trimmed_directory/input_trimmed.fastq.gz \
 fastp paired -end:
 
 ```
-Fastp -i input_1.fastq.gz -I input_2.fastq.gz \
+fastp -i input_1.fastq.gz -I input_2.fastq.gz \
 -o trimmed_directory/input_trimmed_1.fastq.gz -O input_trimmed_2.fastq.gz \
 -h html_reports/input.html \
 -j json_reports/input.json
