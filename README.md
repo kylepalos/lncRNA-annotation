@@ -63,7 +63,8 @@ salmon quant -l A -1 input_trimmed_1.fastq.gz -2 input_trimmed_2.fastq.gz \
 Salmon is one of the only programs I know that so easily reports the strandedness of a dataset.
 
 Include the script to scrape the log file for library type detection.
-Caylyn pushed this script to the repo, []
+
+Caylyn pushed this script to the repo, "extract_library_type.sh"
 
 
 **Read mapping prep:**
