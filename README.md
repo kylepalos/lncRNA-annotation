@@ -60,3 +60,66 @@ salmon quant -l A -1 input_trimmed_1.fastq.gz -2 input_trimmed_2.fastq.gz \
 Salmon is one of the only programs I know that so easily reports the strandedness of a dataset.
 
 Include the script to scrape the log file for library type detection.
+
+
+**Read mapping prep:**
+
+```
+# Make the Hisat2 index from Araport11 GTF
+# This will improve anchoring during read mapping
+
+extract_exons.py Araport11.gtf > Athaliana.exon
+
+extract_splice_sites.py Araport11.gtf > Athaliana.ss
+
+# Build command:
+
+hisat2-build --ss Athaliana.ss --exon Athaliana.exon Arabidopsis_thaliana.TAIR10.dna.toplevel.fa AT_hisat -p 32
+
+```
+
+**Read mapping:**
+
+```
+hisat2 -x AT_hisat \ #index
+
+--max-intronlen 1500 \ # <1% of introns are greater than 1kb, see: 10.3390/genes8080200
+
+--dta-cufflinks \ # recommended for conservative transcript assembly, see https://github.com/gpertea/stringtie/issues/204#issuecomment-435409259
+
+--rna-strandness ${} \ # as reported by Salmon and converted to the proper Hisat2 argument
+
+-U $trimmed_reads.fastq.gz \ # for single end
+
+-1 $trimmed_reads_forward_1.fastq.gz -2 $trimmed_reads_reverse_2.fastq.gz | # for paired end, obviously only use single or paired end
+
+samtools sort -o $file_name.bam - # pipe output to bam conversion
+```
+
+
+**Transcript assembly:**
+```
+# first index all the bam files
+ls *.bam | parallel samtools index '{}'
+
+# assemble methylation mutant samples separately from all other samples
+# assemble paired and single end samples to the same output directory because they will be merged together
+# Don't specify strand as StringTie can infer this information from splice junction tags reported by Hisat2
+# As recommended by the creator in this GitHub thread: https://github.com/gpertea/stringtie/issues/204
+
+stringtie ${name}.bam \
+
+-G Araport_reference.gtf \ # specify the reference annotation to guide new assemblies
+
+-o ${name}_stringtie.gtf \ # output
+
+-f 0.05 \ # alternative isoforms must be present at > 5% abundance of the primary isoform
+# Lower abundance transcripts are often artifacts of incompletely spliced precursors of processed transcripts.
+
+-j 5 \ # the number of spliced reads that should align across a junction (junction coverage) - reduces spurious spliced transcripts
+
+-c 5 \ # minimum read coverage allowed for the predicted transcripts
+
+-s 15  # minimum read coverage allowed for single-exon transcripts 
+
+```
