@@ -10,6 +10,7 @@ Read quality collection and reporting: multiQC v1.14
 Detect strandedness of library: salmon v1.10.0
 Map reads to genome: Hisat2 v2.2.1
 Assemble transcripts: StringTie v2.2.1
+Classify transcripts: gffcompare v0.12.6
 ```
 
 Basic command used for each program and justification:
@@ -66,6 +67,7 @@ Include the script to scrape the log file for library type detection.
 
 ```
 # Make the Hisat2 index from Araport11 GTF
+# Obviously change with new version for T2T genome
 # This will improve anchoring during read mapping
 
 extract_exons.py Araport11.gtf > Athaliana.exon
@@ -74,6 +76,7 @@ extract_splice_sites.py Araport11.gtf > Athaliana.ss
 
 # Build command:
 
+# will put new Athaliana genome fasta version here
 hisat2-build --ss Athaliana.ss --exon Athaliana.exon Arabidopsis_thaliana.TAIR10.dna.toplevel.fa AT_hisat -p 32
 
 ```
@@ -98,14 +101,13 @@ samtools sort -o $file_name.bam - # pipe output to bam conversion
 
 
 **Transcript assembly:**
+
 ```
 # first index all the bam files
 ls *.bam | parallel samtools index '{}'
 
 # assemble methylation mutant samples separately from all other samples
 # assemble paired and single end samples to the same output directory because they will be merged together
-# Don't specify strand as StringTie can infer this information from splice junction tags reported by Hisat2
-# As recommended by the creator in this GitHub thread: https://github.com/gpertea/stringtie/issues/204
 
 stringtie ${name}.bam \
 
@@ -120,6 +122,36 @@ stringtie ${name}.bam \
 
 -c 5 \ # minimum read coverage allowed for the predicted transcripts
 
--s 15  # minimum read coverage allowed for single-exon transcripts 
+-s 15  \# minimum read coverage allowed for single-exon transcripts 
+
+[--rf, --fr, or omit if unstranded]
+```
+
+**Merge assemblies:**
 
 ```
+stringtie --merge [all single and paired-end outputs].gtf \
+-G reference_annotation.gtf \
+-o merged_output.gtf
+```
+
+
+
+
+**Transcript classification:**
+
+```
+gffcompare -r reference_annotation.gtf -o Athaliana_gffcompare merged_output.gtf
+```
+
+Gffcompare generates class codes for all newly assembled transcripts, [see here](https://ccb.jhu.edu/software/stringtie/gffcompare.shtml)
+
+Class code 'u' are new intergenic transcripts (may eventually become lincRNAs)
+Class code 'x' are antisense transcripts to annotated genes (may eventually become antisense lncRNAs)
+
+**Transcripts from these classes will be fed into:**
+1. [CPC2](http://cpc2.gao-lab.org/run_cpc2_program.php)
+2. [rFam](https://rfam.org/search)
+3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/)
+
+Using command line versions for all tools
