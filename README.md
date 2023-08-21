@@ -149,11 +149,12 @@ gffcompare -r reference_annotation.gtf -o Athaliana_gffcompare merged_output.gtf
 Gffcompare generates class codes for all newly assembled transcripts, [see here](https://ccb.jhu.edu/software/stringtie/gffcompare.shtml)
 
 Class code 'u' are new intergenic transcripts (may eventually become lincRNAs)
+
 Class code 'x' are antisense transcripts to annotated genes (may eventually become antisense lncRNAs)
 
 **Transcripts from these classes will be fed into:**
-1. [CPC2](http://cpc2.gao-lab.org/run_cpc2_program.php)
-2. [rFam](https://rfam.org/search)
-3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/)
+1. [CPC2](http://cpc2.gao-lab.org/run_cpc2_program.php) - coding classification
+2. [rFam](https://rfam.org/search) - similarity to "housekeeping" RNAs (snoRNA, rRNA, tRNA, etc.)
+3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/) - similarity to known protein domains
 
-Using command line versions for all tools
+
