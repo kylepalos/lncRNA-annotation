@@ -13,8 +13,10 @@ Assemble transcripts: StringTie v2.2.1
 Classify transcripts: gffcompare v0.12.6
 ```
 
-Basic command used for each program and justification:
+**The remainder of this readme is currently an overview of the commands used for each program and some justification:**
 To start, sequencing experiments will be separated into single-end or paired-end directories so that bash scripting is easier.
+
+Additionally, experiments dealing with DNA methylation mutant experiments will be kept sepate for the entire workflow.
 
 **Automatic read trimming:**
 
