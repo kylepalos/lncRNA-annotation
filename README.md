@@ -10,10 +10,13 @@ Read quality collection and reporting: multiQC v1.14
 Detect strandedness of library: salmon v1.10.0
 Map reads to genome: Hisat2 v2.2.1
 Assemble transcripts: StringTie v2.2.1
+Classify transcripts: gffcompare v0.12.6
 ```
 
-Basic command used for each program and justification:
+**The remainder of this readme is currently an overview of the commands used for each program and some justification:**
 To start, sequencing experiments will be separated into single-end or paired-end directories so that bash scripting is easier.
+
+Additionally, experiments dealing with DNA methylation mutant experiments will be kept sepate for the entire workflow.
 
 **Automatic read trimming:**
 
@@ -34,7 +37,7 @@ fastp -i input_1.fastq.gz -I input_2.fastq.gz \
 -j json_reports/input.json
 ```
 
-Automatic adapter and quality detection followed by trimming will avoid manual and error-prone trimming (phrase better)
+Automatic adapter and quality detection followed by trimming will avoid manual and error-prone processing using other tools where we have to manually enter trimming parameters.
 
 
 
@@ -61,11 +64,14 @@ Salmon is one of the only programs I know that so easily reports the strandednes
 
 Include the script to scrape the log file for library type detection.
 
+Caylyn pushed this script to the repo, "extract_library_type.sh"
+
 
 **Read mapping prep:**
 
 ```
 # Make the Hisat2 index from Araport11 GTF
+# Obviously change with new version for T2T genome
 # This will improve anchoring during read mapping
 
 extract_exons.py Araport11.gtf > Athaliana.exon
@@ -74,6 +80,7 @@ extract_splice_sites.py Araport11.gtf > Athaliana.ss
 
 # Build command:
 
+# will put new Athaliana genome fasta version here
 hisat2-build --ss Athaliana.ss --exon Athaliana.exon Arabidopsis_thaliana.TAIR10.dna.toplevel.fa AT_hisat -p 32
 
 ```
@@ -98,14 +105,13 @@ samtools sort -o $file_name.bam - # pipe output to bam conversion
 
 
 **Transcript assembly:**
+
 ```
 # first index all the bam files
 ls *.bam | parallel samtools index '{}'
 
 # assemble methylation mutant samples separately from all other samples
 # assemble paired and single end samples to the same output directory because they will be merged together
-# Don't specify strand as StringTie can infer this information from splice junction tags reported by Hisat2
-# As recommended by the creator in this GitHub thread: https://github.com/gpertea/stringtie/issues/204
 
 stringtie ${name}.bam \
 
@@ -120,6 +126,37 @@ stringtie ${name}.bam \
 
 -c 5 \ # minimum read coverage allowed for the predicted transcripts
 
--s 15  # minimum read coverage allowed for single-exon transcripts 
+-s 15  \# minimum read coverage allowed for single-exon transcripts 
+
+[--rf, --fr, or omit if unstranded]
+```
+
+**Merge assemblies:**
 
 ```
+stringtie --merge [all single and paired-end outputs].gtf \
+-G reference_annotation.gtf \
+-o merged_output.gtf
+```
+
+
+
+
+**Transcript classification:**
+
+```
+gffcompare -r reference_annotation.gtf -o Athaliana_gffcompare merged_output.gtf
+```
+
+Gffcompare generates class codes for all newly assembled transcripts, [see here](https://ccb.jhu.edu/software/stringtie/gffcompare.shtml)
+
+Class code 'u' are new intergenic transcripts (may eventually become lincRNAs)
+
+Class code 'x' are antisense transcripts to annotated genes (may eventually become antisense lncRNAs)
+
+**Transcripts from these classes will be fed into:**
+1. [CPC2](http://cpc2.gao-lab.org/run_cpc2_program.php) - coding classification
+2. [rFam](https://rfam.org/search) - similarity to "housekeeping" RNAs (snoRNA, rRNA, tRNA, etc.)
+3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/) - similarity to known protein domains
+
+
