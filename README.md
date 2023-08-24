@@ -162,7 +162,7 @@ Class code 'x' are antisense transcripts to annotated genes (may eventually beco
 
 **Liftover of Araport11 annotation to new T2T genome:**
 
-**Note: The soon to be published annotation will actually be more manually and accurately curated re-annotation for the T2T genome. I am doing this general liftover for antisense lncRNA identification purposes only.**
+**Note: The soon to be published annotation will actually be more a manually and accurately curated re-annotation for the T2T genome. I am doing this general liftover for antisense lncRNA identification purposes only.**
 
 I will be using the [Liftoff](https://github.com/agshumate/Liftoff) tool coming out of Steven Salzberg's group, which uses Minimap2 to accurately map annotations between assemblies.
 
