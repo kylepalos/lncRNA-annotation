@@ -190,3 +190,18 @@ athal_t2t.fa tair_no_organelle.fa \ # target then reference
 -f feature_types_file.txt \ # the feature file above
 -o athal_t2t_liftover.gff3 # the output annotation
 ```
+
+**Making the Hisat2 index for mapping:**
+
+```
+# first convert gff to gtf so Hisat can make relevant file
+gffread -T athal_t2t_liftover.gff3 > athal_t2t_liftover_gffread.gtf
+
+# then use Hisat2 extract exons and splice sites so we can make the index:
+
+python3 extract_exons.py athal_t2t_liftover_gffread.gtf > at_t2t.exon
+
+python3 extract_splice_sites.py athal_t2t_liftover_gffread.gtf > at_t2t.ss
+
+hisat2-build --ss at_t2t.ss --exon at_t2t.exon athal_t2t.fa at_t2t -p 128
+```
