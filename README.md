@@ -160,3 +160,31 @@ Class code 'x' are antisense transcripts to annotated genes (may eventually beco
 3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/) - similarity to known protein domains
 
 
+**Liftover of Araport11 annotation to new T2T genome:**
+
+I will be using the [Liftoff](https://github.com/agshumate/Liftoff) tool coming out of Steven Salzberg's group, which uses Minimap2 to accurately map annotations between assemblies.
+
+I am using a slightly custom Araport11 gff3 annotation that has been cleaned using [AGAT's](https://github.com/NBISweden/AGAT) agat_convert_sp_gxf2gxf.pl script for annotation standardization.
+
+Additionally, I will provide a list of feature types beyond what Liftoff natively recognizes, this is essentially just a .txt file that says:
+
+```
+lnc_RNA
+miRNA
+tRNA
+ncRNA
+snoRNA
+snRNA
+rRNA
+```
+
+provided through the -f argument.
+
+The command for liftover was:
+```
+python3 liftoff/build/lib/liftoff/run_liftoff.py \
+athal_t2t.fa tair_no_organelle.fa \ # target then reference
+-g athaliana_araport_no_organelle.gff3 \ # annotation of features to lift over
+-f feature_types_file.txt \ # the feature file above
+-o athal_t2t_liftover.gff3 # the output annotation
+```
