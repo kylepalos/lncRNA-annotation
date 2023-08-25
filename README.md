@@ -139,7 +139,13 @@ stringtie --merge [all single and paired-end outputs].gtf \
 -o merged_output.gtf
 ```
 
+**Remove any transcripts which do not get a '+' or '-' designation for strand**
 
+**These are single-exon transcripts which I find are typically unreliable and problematic to have in a gff**
+
+```
+awk '$7 != "."' merged_output.gtf > merged_output_no_unstranded.gtf
+```
 
 
 **Transcript classification:**
