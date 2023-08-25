@@ -151,7 +151,7 @@ awk '$7 != "."' merged_output.gtf > merged_output_no_unstranded.gtf
 **Transcript classification:**
 
 ```
-gffcompare -r reference_annotation.gtf -o Athaliana_gffcompare merged_output.gtf
+gffcompare -r reference_annotation.gtf -o Athaliana_gffcompare merged_output_no_unstranded.gtf
 ```
 
 Gffcompare generates class codes for all newly assembled transcripts, [see here](https://ccb.jhu.edu/software/stringtie/gffcompare.shtml)
