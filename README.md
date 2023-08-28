@@ -214,5 +214,25 @@ Class code 'i' are fully intronic transcripts to annotated genes. I will extract
 3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/) - similarity to known protein domains
 
 
+## Expression re-analysis:
+
+After assembly, it will be useful to see how these "new" genes are expressed across the sampled experiments we used.
+
+I did this doing the following steps:
+
+1. Merge the "liftover" annotation with the new assembly of interest (I extracted out the genes with the class codes of interest from the merged annotation).
+2. I then made a decoy aware Salmon index, following [this workflow](https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/)
+3. And quantified all the trimmed fastq files against this index:
+
+```
+salmon quant -l A -i athal_decoy_aware_index \
+-1 reads_1.fastq.gz -2 reads_2.fastq.gz \
+--gcBias --posBias --seqBias \
+-o name_quant
+```
+
+
+
+
 
 
