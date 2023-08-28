@@ -208,10 +208,12 @@ Class code 'x' are antisense transcripts to annotated genes (may eventually beco
 Class code 'i' are fully intronic transcripts to annotated genes. I will extract out those that are on the opposite strand as the reference.
 
 
-**Transcripts from these classes will be fed into:**
-1. [CPC2](http://cpc2.gao-lab.org/run_cpc2_program.php) - coding classification
-2. [rFam](https://rfam.org/search) - similarity to "housekeeping" RNAs (snoRNA, rRNA, tRNA, etc.)
-3. [PfamScan](https://www.ebi.ac.uk/Tools/pfa/pfamscan/) - similarity to known protein domains
+
+## Basic sequence annotation:
+
+1. I processed all transcript sequences throught [CPC2](http://cpc2.gao-lab.org/run_cpc2_result.php?userid=230829349816425&type=)
+2. I processed all transcript sequences through [Rfam](https://rfam.org/search)
+3. I used [TransDecoder](https://github.com/TransDecoder/TransDecoder/wiki) to annotate open reading frames and known protein homology.
 
 
 ## Expression re-analysis:
@@ -230,9 +232,6 @@ salmon quant -l A -i athal_decoy_aware_index \
 --gcBias --posBias --seqBias \
 -o name_quant
 ```
-
-
-
 
 
 
